@@ -11,10 +11,9 @@ typedef struct {
     float pib;                // bilhões de reais
     int pontosTuristicos;
     float densidade;          // habitantes por km²
-    float pibPerCapita;       // reais por habitante
 } Carta;
 
-// Inicializa uma carta com dados fixos e calcula densidade e PIB per capita
+// Função para inicializar uma carta e calcular sua densidade populacional
 void inicializaCarta(Carta *c,
                      const char *estado,
                      const char *codigo,
@@ -33,32 +32,17 @@ void inicializaCarta(Carta *c,
     c->nomeCidade[sizeof(c->nomeCidade)-1] = '\0';
 
     // Atribui valores
-    c->populacao       = populacao;
-    c->area            = area;
-    c->pib             = pib;
-    c->pontosTuristicos= pontosTuristicos;
+    c->populacao        = populacao;
+    c->area             = area;
+    c->pib              = pib;
+    c->pontosTuristicos = pontosTuristicos;
 
-    // Calcula atributos derivados
-    c->densidade       = c->populacao / c->area;               // hab/km²
-    c->pibPerCapita    = (c->pib * 1e9f) / c->populacao;      // reais por habitante
-}
-
-// Exibe todos os campos de uma carta
-void exibeCarta(const Carta *c, int indice) {
-    printf("Carta %d:\n", indice);
-    printf("  Estado           : %s\n", c->estado);
-    printf("  Código           : %s\n", c->codigo);
-    printf("  Cidade           : %s\n", c->nomeCidade);
-    printf("  População        : %d habitantes\n", c->populacao);
-    printf("  Área             : %.2f km²\n", c->area);
-    printf("  PIB              : %.2f bilhões de reais\n", c->pib);
-    printf("  Pontos Turísticos: %d\n", c->pontosTuristicos);
-    printf("  Densidade Pop.   : %.2f hab/km²\n", c->densidade);
-    printf("  PIB per Capita   : %.2f reais/hab\n\n", c->pibPerCapita);
+    // Calcula densidade populacional
+    c->densidade = populacao / area;
 }
 
 int main() {
-    // --- Inicializa duas cartas pré-definidas ---
+    // --- Cartas pré-definidas ---
     Carta carta1, carta2;
     inicializaCarta(&carta1,
                     "SP", "A01", "São Paulo",
@@ -67,28 +51,83 @@ int main() {
                     "RJ", "B02", "Rio de Janeiro",
                     6748000, 1200.25f, 300.50f, 30);
 
-    // Exibe todas as informações calculadas
-    printf("\n=== Dados das Cartas ===\n\n");
-    exibeCarta(&carta1, 1);
-    exibeCarta(&carta2, 2);
+    int opcao;
+    char *nomeAtributo;
+    float val1, val2;
 
-    // --- Comparação de atributo ---
-    // Escolha do atributo: Densidade Populacional
-    const char *atributoNome = "Densidade Populacional";
-    float valor1 = carta1.densidade;
-    float valor2 = carta2.densidade;
+    // --- Menu interativo ---
+    printf("=== Super Trunfo: Comparação de Cartas ===\n");
+    printf("Escolha o atributo para comparar:\n");
+    printf(" 1. População\n");
+    printf(" 2. Área\n");
+    printf(" 3. PIB\n");
+    printf(" 4. Pontos Turísticos\n");
+    printf(" 5. Densidade Demográfica\n");
+    printf("Opção: ");
+    scanf("%d", &opcao);
 
-    printf("=== Comparação de Cartas (Atributo: %s) ===\n\n", atributoNome);
-    printf("Carta 1 - %s: %.2f hab/km²\n", carta1.nomeCidade, valor1);
-    printf("Carta 2 - %s: %.2f hab/km²\n\n", carta2.nomeCidade, valor2);
+    // --- Determina atributo e valores ---
+    switch(opcao) {
+        case 1:
+            nomeAtributo = "População (hab)";
+            val1 = carta1.populacao;
+            val2 = carta2.populacao;
+            break;
+        case 2:
+            nomeAtributo = "Área (km²)";
+            val1 = carta1.area;
+            val2 = carta2.area;
+            break;
+        case 3:
+            nomeAtributo = "PIB (bilhões R$)";
+            val1 = carta1.pib;
+            val2 = carta2.pib;
+            break;
+        case 4:
+            nomeAtributo = "Pontos Turísticos";
+            val1 = carta1.pontosTuristicos;
+            val2 = carta2.pontosTuristicos;
+            break;
+        case 5:
+            nomeAtributo = "Densidade Demográfica (hab/km²)";
+            val1 = carta1.densidade;
+            val2 = carta2.densidade;
+            break;
+        default:
+            printf("Opção inválida! Encerrando o jogo.\n");
+            return 1;
+    }
 
-    // Para densidade, vence quem tiver valor menor
-    if (valor1 < valor2) {
-        printf("Resultado: Carta 1 (%s) venceu!\n", carta1.nomeCidade);
-    } else if (valor2 < valor1) {
-        printf("Resultado: Carta 2 (%s) venceu!\n", carta2.nomeCidade);
+    // --- Exibe comparação ---
+    printf("\n--- Comparação de Cartas (%s) ---\n", nomeAtributo);
+    printf("1) %s: %.2f\n", carta1.nomeCidade, val1);
+    printf("2) %s: %.2f\n\n", carta2.nomeCidade, val2);
+
+    // --- Lógica de decisão ---
+    if (opcao == 5) {
+        // Para densidade, quem tiver VALOR MENOR vence
+        if (val1 < val2) {
+            printf("Resultado: Carta 1 (%s) venceu!\n", carta1.nomeCidade);
+        } else {
+            // aninhando para tratar empate
+            if (val2 < val1) {
+                printf("Resultado: Carta 2 (%s) venceu!\n", carta2.nomeCidade);
+            } else {
+                printf("Empate!\n");
+            }
+        }
     } else {
-        printf("Resultado: Empate!\n");
+        // Para os demais, quem tiver VALOR MAIOR vence
+        if (val1 > val2) {
+            printf("Resultado: Carta 1 (%s) venceu!\n", carta1.nomeCidade);
+        } else {
+            // aninhando para tratar empate
+            if (val2 > val1) {
+                printf("Resultado: Carta 2 (%s) venceu!\n", carta2.nomeCidade);
+            } else {
+                printf("Empate!\n");
+            }
+        }
     }
 
     return 0;
